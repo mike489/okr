@@ -16,6 +16,7 @@ import Logo from 'ui-component/Logo';
 import AuthFooter from 'ui-component/cards/AuthFooter';
 import { Link } from 'react-router-dom';
 import Copyright from './components/copyright';
+import BG from '../../assets/images/auth/ils1.svg';
 
 // ================================|| AUTH - LOGIN ||================================ //
 
@@ -28,7 +29,7 @@ const Login = () => {
       sx={{
         minHeight: '100vh',
         height: '100vh',
-        backgroundImage: 'url(/images/auth/ils1.svg)',
+        // backgroundImage: 'url(/images/auth/ils1.svg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -98,7 +99,7 @@ const Login = () => {
               <Link to="/">
                 <Box
                   component="img"
-                  src="/src/assets/images/auth/ils1.svg"
+                  src={BG}
                   alt="Company Logo"
                   sx={{
                     maxWidth: 700,
