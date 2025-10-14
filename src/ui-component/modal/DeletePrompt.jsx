@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   useTheme,
   CircularProgress,
-  IconButton
+  IconButton,
 } from '@mui/material';
 
 import PropTypes from 'prop-types';
@@ -21,25 +21,55 @@ import { IconX } from '@tabler/icons-react';
 
 const XIcon = motion(IconX);
 
-const DeletePrompt = ({ type, open, title, description, handleClose, onNo, onYes, deleting }) => {
+const DeletePrompt = ({
+  type,
+  open,
+  title,
+  description,
+  handleClose,
+  onNo,
+  onYes,
+  deleting,
+}) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const Icon = DialogTypes.find((types) => types.name == type);
 
   return (
     <React.Fragment>
-      <Dialog  open={open} onClose={handleClose} aria-labelledby="responsive-dialog-title">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', paddingLeft: 2 }}>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingLeft: 2,
+            }}
+          >
             {Icon && Icon.icon}
-            <DialogTitle variant="subtitle1" color={theme.palette.text.primary} id="responsive-dialog-title">
+            <DialogTitle
+              variant="subtitle1"
+              color={theme.palette.text.primary}
+              id="responsive-dialog-title"
+            >
               {title}
             </DialogTitle>
           </Box>
 
           <motion.div
             whileHover={{
-              rotate: 90
+              rotate: 90,
             }}
             transition={{ duration: 0.3 }}
             style={{ cursor: 'pointer', marginRight: 10 }}
@@ -57,7 +87,14 @@ const DeletePrompt = ({ type, open, title, description, handleClose, onNo, onYes
             No
           </Button>
           <Button onClick={onYes} color="error">
-            {deleting ? <CircularProgress size={16} sx={{ color: theme.palette.error.main }} /> : 'Yes'}
+            {deleting ? (
+              <CircularProgress
+                size={16}
+                sx={{ color: theme.palette.error.main }}
+              />
+            ) : (
+              'Yes'
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -73,7 +110,7 @@ DeletePrompt.propTypes = {
   handleClose: PropTypes.func,
   onNo: PropTypes.func,
   onYes: PropTypes.func,
-  deleting: PropTypes.bool
+  deleting: PropTypes.bool,
 };
 
 export default DeletePrompt;
