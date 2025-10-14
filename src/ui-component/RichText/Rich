@@ -1,0 +1,160 @@
+// import React, { useRef, useState } from 'react';
+// import PropTypes from 'prop-types';
+// import {
+//   FormatBold,
+//   FormatItalic,
+//   FormatUnderlined,
+//   LooksOne,
+//   LooksTwo,
+//   Code,
+//   FormatQuote,
+//   FormatListNumbered,
+//   FormatListBulleted,
+// } from '@mui/icons-material';
+// import { Box, ToggleButtonGroup, ToggleButton } from '@mui/material';
+
+// const RichTextEditor = ({ value, onChange, label }) => {
+//   const editorRef = useRef(null);
+//   const [format, setFormat] = useState([]);
+
+//   const handleFormatChange = (event, newFormats) => {
+//     setFormat(newFormats);
+//   };
+
+//   const applyFormat = (command, value = '') => {
+//     document.execCommand(command, false, value);
+//     editorRef.current.focus();
+//     onChange({ target: { value: editorRef.current.innerHTML, name: 'body' } });
+//   };
+
+//   const handleEditorChange = () => {
+//     onChange({ target: { value: editorRef.current.innerHTML, name: 'body' } });
+//   };
+
+//   return (
+//     <Box sx={{ border: '1px solid #ccc', borderRadius: '4px' }}>
+//       <ToggleButtonGroup
+//         value={format}
+//         onChange={handleFormatChange}
+//         aria-label="text formatting"
+//         sx={{ p: 0.5, borderBottom: '1px solid #eee' }}
+//       >
+//         <ToggleButton
+//           value="bold"
+//           aria-label="bold"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('bold');
+//           }}
+//         >
+//           <FormatBold />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="italic"
+//           aria-label="italic"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('italic');
+//           }}
+//         >
+//           <FormatItalic />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="underline"
+//           aria-label="underline"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('underline');
+//           }}
+//         >
+//           <FormatUnderlined />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="h1"
+//           aria-label="heading 1"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('formatBlock', '<h1>');
+//           }}
+//         >
+//           <LooksOne />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="h2"
+//           aria-label="heading 2"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('formatBlock', '<h2>');
+//           }}
+//         >
+//           <LooksTwo />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="code"
+//           aria-label="code"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('formatBlock', '<pre>');
+//           }}
+//         >
+//           <Code />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="blockquote"
+//           aria-label="blockquote"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('formatBlock', '<blockquote>');
+//           }}
+//         >
+//           <FormatQuote />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="ordered"
+//           aria-label="ordered list"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('insertOrderedList');
+//           }}
+//         >
+//           <FormatListNumbered />
+//         </ToggleButton>
+//         <ToggleButton
+//           value="unordered"
+//           aria-label="unordered list"
+//           onMouseDown={(e) => {
+//             e.preventDefault();
+//             applyFormat('insertUnorderedList');
+//           }}
+//         >
+//           <FormatListBulleted />
+//         </ToggleButton>
+//       </ToggleButtonGroup>
+
+//       <Box
+//         ref={editorRef}
+//         contentEditable
+//         onInput={handleEditorChange}
+//         dangerouslySetInnerHTML={{ __html: value }}
+//         sx={{
+//           minHeight: '200px',
+//           p: 2,
+//           outline: 'none',
+//           '&:focus': {
+//             border: '1px solid #1976d2',
+//             borderRadius: '4px',
+//           },
+//         }}
+//         aria-label={label}
+//       />
+//     </Box>
+//   );
+// };
+
+// RichTextEditor.propTypes = {
+//   value: PropTypes.string,
+//   onChange: PropTypes.func.isRequired,
+//   label: PropTypes.string,
+// };
+
+// export default RichTextEditor;
