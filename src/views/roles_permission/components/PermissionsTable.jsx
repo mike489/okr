@@ -8,6 +8,9 @@ import {
   Grid,
   Divider,
   Tooltip,
+  Chip,
+  Card,
+  CardContent,
 } from '@mui/material';
 import Backend from 'services/backend';
 import Fallbacks from 'utils/components/Fallbacks';
@@ -75,26 +78,26 @@ const PermissionsTable = ({ onPermissionsFetch }) => {
   }, []);
 
   return (
-    <TableContainer
-      component={Paper}
+    <Box
       sx={{
         minHeight: '5dvh',
         margin: 0,
         marginTop: 0,
         paddingY: 4,
-        backgroundColor: theme.palette.background.default,
+        background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`,
       }}
     >
       {permissionLoading ? (
         <Box
           sx={{
-            padding: 2,
+            padding: 4,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            minHeight: '200px',
           }}
         >
-          <ActivityIndicator size={20} />
+          <ActivityIndicator size={24} />
         </Box>
       ) : error ? (
         <Fallbacks
@@ -110,62 +113,142 @@ const PermissionsTable = ({ onPermissionsFetch }) => {
           sx={{ paddingTop: 6 }}
         />
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {Object.keys(groupedPermissions).map((type) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={type}>
-              <DrogaCard
+              <Card
                 sx={{
-                  transition: 'transform 0.3s',
+                  height: '100%',
+                  background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: 3,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  overflow: 'hidden',
+                  position: 'relative',
                   '&:hover': {
-                    transform: 'scale(1.05)',
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 16px 48px rgba(0,0,0,0.12)',
+                    borderColor: theme.palette.primary.light,
+                  },
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
                   },
                 }}
               >
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <Typography variant="h4" fontWeight="bold" color="primary">
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Typography>
-                </Box>
-                <Divider sx={{ my: 1.5 }} />
-                <Box>
-                  {groupedPermissions[type].map((perm) => (
-                    <Box
-                      key={perm.id}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
+                <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    mb={2}
+                  >
+                    <Typography
+                      variant="h5"
+                      fontWeight="700"
                       sx={{
-                        marginBottom: 1,
-                        padding: 0.5,
-                        borderRadius: 1,
+                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                        backgroundClip: 'text',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textTransform: 'capitalize',
+                        letterSpacing: '-0.02em',
                       }}
                     >
-                      <Tooltip title={perm.name} placement="top">
-                        <Typography
-                          variant="body2"
-                          noWrap
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Typography>
+                    <Chip
+                      label={groupedPermissions[type].length}
+                      size="small"
+                      sx={{
+                        backgroundColor: theme.palette.primary.main,
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        minWidth: 24,
+                      }}
+                    />
+                  </Box>
+
+                  <Divider
+                    sx={{
+                      mb: 2.5,
+                      borderColor: theme.palette.divider,
+                      opacity: 0.6,
+                    }}
+                  />
+
+                  <Box>
+                    {groupedPermissions[type].map((perm, index) => (
+                      <Tooltip
+                        key={perm.id}
+                        title={perm.name}
+                        placement="top"
+                        arrow
+                      >
+                        <Box
+                          display="flex"
+                          alignItems="center"
                           sx={{
-                            maxWidth: '180px',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
+                            marginBottom: 1.5,
+                            padding: 2,
+                            borderRadius: 2,
+                            background: theme.palette.background.default,
+                            border: `1px solid ${theme.palette.divider}`,
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: theme.palette.action.hover,
+                              borderColor: theme.palette.primary.light,
+                              transform: 'translateX(4px)',
+                            },
+                            '&:last-child': {
+                              marginBottom: 0,
+                            },
                           }}
                         >
-                          {perm.name}
-                        </Typography>
+                          <Box
+                            sx={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              backgroundColor: theme.palette.primary.main,
+                              marginRight: 2,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <Typography
+                            variant="body2"
+                            noWrap
+                            sx={{
+                              flex: 1,
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              fontWeight: 500,
+                              color: theme.palette.text.primary,
+                              fontSize: '0.85rem',
+                            }}
+                          >
+                            {perm.name}
+                          </Typography>
+                        </Box>
                       </Tooltip>
-                    </Box>
-                  ))}
-                </Box>
-              </DrogaCard>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
             </Grid>
           ))}
         </Grid>
       )}
-    </TableContainer>
+    </Box>
   );
 };
 

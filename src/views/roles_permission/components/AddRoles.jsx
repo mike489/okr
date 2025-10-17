@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-import { Modal, Box, Button, TextField, Checkbox, FormControlLabel, CircularProgress, Typography, Grid } from '@mui/material';
+import {
+  Modal,
+  Box,
+  Button,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  CircularProgress,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+} from '@mui/material';
 import { toast } from 'react-toastify';
 import { Formik, Form, Field, FieldArray } from 'formik';
 import { motion } from 'framer-motion';
@@ -16,7 +28,9 @@ import ActivityIndicator from 'ui-component/indicators/ActivityIndicator';
 
 const roleSchema = Yup.object().shape({
   roleName: Yup.string().required('Role name is required'),
-  permissions: Yup.array().of(Yup.string()).min(1, 'At least one permission is required')
+  permissions: Yup.array()
+    .of(Yup.string())
+    .min(1, 'At least one permission is required'),
 });
 
 const AddRole = ({ open, handleClose, onSave, submitting }) => {
@@ -31,7 +45,9 @@ const AddRole = ({ open, handleClose, onSave, submitting }) => {
   };
 
   const filteredPermissions = Object.keys(permissions).reduce((acc, type) => {
-    const filtered = permissions[type].filter((perm) => perm.name.toLowerCase().includes(search.toLowerCase()));
+    const filtered = permissions[type].filter((perm) =>
+      perm.name.toLowerCase().includes(search.toLowerCase()),
+    );
     if (filtered.length > 0) {
       acc[type] = filtered;
     }
@@ -45,12 +61,12 @@ const AddRole = ({ open, handleClose, onSave, submitting }) => {
     const header = {
       Authorization: `Bearer ${token}`,
       accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     fetch(Api, {
       method: 'GET',
-      headers: header
+      headers: header,
     })
       .then((response) => response.json())
       .then((response) => {
@@ -58,7 +74,8 @@ const AddRole = ({ open, handleClose, onSave, submitting }) => {
           const permissionsData = response.data;
 
           const grouped = permissionsData.reduce((acc, perm) => {
-            const type = perm.name.split(':')[1];
+            const parts = perm.name.split('_');
+            const type = parts.slice(1).join('_');
             if (!acc[type]) {
               acc[type] = [];
             }
@@ -84,7 +101,7 @@ const AddRole = ({ open, handleClose, onSave, submitting }) => {
       onClose={handleClose}
       sx={{
         backdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)'
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
       }}
       fullWidth={true}
       maxWidth="lg"
@@ -94,176 +111,377 @@ const AddRole = ({ open, handleClose, onSave, submitting }) => {
           position: 'absolute',
           top: '50%',
           left: '50%',
-          maxHeight: '80vh',
-          overflowY: 'auto',
+          height: '90vh',
           transform: 'translate(-50%, -50%)',
-          width: '50%',
+          width: '90%',
+          maxWidth: '1200px',
           bgcolor: 'background.paper',
-          boxShadow: 24,
-          borderRadius: 2,
-          p: 3
+          background: `linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)`,
+          boxShadow: '0 32px 64px rgba(0,0,0,0.2)',
+          borderRadius: 4,
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.2)',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="h3">Add Role</Typography>
+        {/* Header - Fixed */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            p: 4,
+            pb: 3,
+            background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+            color: 'white',
+            flexShrink: 0,
+          }}
+        >
+          <Typography variant="h3" sx={{ fontWeight: 700, color: 'white' }}>
+            Create New Role
+          </Typography>
 
           <motion.div
             whileHover={{
-              rotate: 90
+              rotate: 90,
+              scale: 1.1,
             }}
-            transition={{ duration: 0.3 }}
-            style={{ cursor: 'pointer', marginRight: 10 }}
+            transition={{ duration: 0.2 }}
+            style={{ cursor: 'pointer' }}
             onClick={handleClose}
           >
-            <IconX size="1.4rem" stroke={2} />
+            <IconX size="1.6rem" stroke={2.5} color="white" />
           </motion.div>
         </Box>
-        <Formik
-          initialValues={{ roleName: '', permissions: [] }}
-          validationSchema={roleSchema}
-          onSubmit={(values, { setSubmitting, setFieldError }) => {
-            if (values.permissions.length === 0) {
-              setFieldError('permissions', 'Please select at least one permission.');
-              setSubmitting(false);
-              return;
-            }
 
-            onSave(values, permissions)
-              .then(() => {
-                handleClose();
-                toast.success('Role created successfully');
-              })
-              .catch(() => {
-                toast.error('Failed to save role. Please try again.');
-              })
-              .finally(() => {
-                setSubmitting(false);
-              });
+        {/* Scrollable Content */}
+        <Box
+          sx={{
+            p: 4,
+            overflowY: 'auto',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          {({ values, setFieldValue, errors, touched }) => (
-            <Form>
-              <TextField
-                name="roleName"
-                label="New Role"
-                value={values.roleName}
-                onChange={(e) => setFieldValue('roleName', e.target.value)}
-                error={touched.roleName && Boolean(errors.roleName)}
-                helperText={touched.roleName && errors.roleName}
-                margin="normal"
-                fullWidth
-                sx={{ my: 2 }}
-              />
+          <Formik
+            initialValues={{ roleName: '', permissions: [] }}
+            validationSchema={roleSchema}
+            onSubmit={(values, { setSubmitting, setFieldError }) => {
+              if (values.permissions.length === 0) {
+                setFieldError(
+                  'permissions',
+                  'Please select at least one permission.',
+                );
+                setSubmitting(false);
+                return;
+              }
 
-              <Typography variant="h4" my={2}>
-                Attach Permissions
-              </Typography>
-
-              <Search title="Search Permissions" filter={false} value={search} onChange={handleSearchingPermission}></Search>
-
-              <Grid container spacing={2} mt={0.5}>
-                {permissionLoading ? (
-                  <Box
-                    sx={{
-                      padding: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <CircularProgress size={20} />
-                  </Box>
-                ) : error ? (
-                  <Fallbacks severity="error" title="Server error" description="There is an error fetching Permissions" />
-                ) : Object.keys(permissions).length === 0 ? (
-                  <Fallbacks
-                    severity="info"
-                    title="No Permissions Found"
-                    description="The list of added Permissions will be listed here"
-                    sx={{ paddingTop: 6 }}
-                  />
-                ) : (
-                  <FieldArray
-                    name="permissions"
-                    render={() =>
-                      Object.keys(filteredPermissions).map((type) => (
-                        <Grid item xs={12} sm={6} md={4} xl={3} key={type}>
-                          <DrogaCard sx={{ mb: 1 }}>
-                            {filteredPermissions[type].map((perm) => (
-                              <FormControlLabel
-                                key={perm.id}
-                                control={
-                                  <Field
-                                    type="checkbox"
-                                    name="permissions"
-                                    value={perm.name}
-                                    as={Checkbox}
-                                    checked={values.permissions.includes(perm.name)}
-                                    onChange={() => {
-                                      if (values.permissions.includes(perm.name)) {
-                                        setFieldValue(
-                                          'permissions',
-                                          values.permissions.filter((p) => p !== perm.name)
-                                        );
-                                      } else {
-                                        setFieldValue('permissions', [...values.permissions, perm.name]);
-                                      }
-                                    }}
-                                  />
-                                }
-                                label={perm.name}
-                              />
-                            ))}
-                          </DrogaCard>
-                        </Grid>
-                      ))
-                    }
-                  />
-                )}
-              </Grid>
-
-              <Grid container>
-                <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  <Button
-                    onClick={() => {
-                      resetForm();
-                      handleClose();
-                    }}
-                    variant=""
-                    sx={{ mt: 2, mr: 2 }}
-                  >
-                    Cancel
-                  </Button>
-
-                  <DrogaButton
-                    title={submitting ? <ActivityIndicator size={16} sx={{ color: 'white' }} /> : 'Submit'}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    disabled={submitting}
-                  />
-                </Grid>
-              </Grid>
-              {errors.permissions && touched.permissions && (
-                <Typography
-                  variant="body2"
-                  color="error"
+              onSave(values, permissions)
+                .then(() => {
+                  handleClose();
+                  toast.success('Role created successfully');
+                })
+                .catch(() => {
+                  toast.error('Failed to save role. Please try again.');
+                })
+                .finally(() => {
+                  setSubmitting(false);
+                });
+            }}
+          >
+            {({ values, setFieldValue, errors, touched, resetForm }) => (
+              <Form
+                style={{ display: 'flex', flexDirection: 'column', flex: 1 }}
+              >
+                {/* Role Name Field */}
+                <TextField
+                  name="roleName"
+                  label="Role Name"
+                  value={values.roleName}
+                  onChange={(e) => setFieldValue('roleName', e.target.value)}
+                  error={touched.roleName && Boolean(errors.roleName)}
+                  helperText={touched.roleName && errors.roleName}
+                  margin="normal"
+                  fullWidth
                   sx={{
-                    mt: 2,
-                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    border: '1px solid red',
-                    textAlign: 'center'
+                    my: 3,
+                    flexShrink: 0,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                    },
+                  }}
+                />
+
+                <Typography
+                  variant="h4"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 600,
+                    color: 'text.primary',
+                    flexShrink: 0,
                   }}
                 >
-                  {errors.permissions}
+                  Attach Permissions
                 </Typography>
-              )}
-            </Form>
-          )}
-        </Formik>
+
+                {/* Search - Fixed */}
+                <Box sx={{ flexShrink: 0 }}>
+                  <Search
+                    title="Search Permissions"
+                    filter={false}
+                    value={search}
+                    onChange={handleSearchingPermission}
+                  />
+                </Box>
+
+                {/* Permissions Grid - Scrollable */}
+                <Grid
+                  container
+                  spacing={3}
+                  sx={{
+                    mt: 1,
+                    flex: 1,
+                    overflowY: 'auto',
+                    alignContent: 'flex-start',
+                  }}
+                >
+                  {permissionLoading ? (
+                    <Grid item xs={12}>
+                      <Box
+                        sx={{
+                          padding: 4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: '200px',
+                        }}
+                      >
+                        <ActivityIndicator size={24} />
+                      </Box>
+                    </Grid>
+                  ) : error ? (
+                    <Grid item xs={12}>
+                      <Fallbacks
+                        severity="error"
+                        title="Server error"
+                        description="There is an error fetching Permissions"
+                      />
+                    </Grid>
+                  ) : Object.keys(permissions).length === 0 ? (
+                    <Grid item xs={12}>
+                      <Fallbacks
+                        severity="info"
+                        title="No Permissions Found"
+                        description="The list of added Permissions will be listed here"
+                        sx={{ paddingTop: 6 }}
+                      />
+                    </Grid>
+                  ) : (
+                    <FieldArray
+                      name="permissions"
+                      render={() =>
+                        Object.keys(filteredPermissions).map((type) => (
+                          <Grid item xs={12} sm={6} md={4} xl={3} key={type}>
+                            <Card
+                              sx={{
+                                height: '100%',
+                                background: `linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)`,
+                                border: `1px solid rgba(0,0,0,0.08)`,
+                                borderRadius: 3,
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                                transition: 'all 0.3s ease',
+                                overflow: 'hidden',
+                                '&:hover': {
+                                  transform: 'translateY(-4px)',
+                                  boxShadow: '0 16px 48px rgba(0,0,0,0.12)',
+                                },
+                              }}
+                            >
+                              <CardContent
+                                sx={{ p: 3, '&:last-child': { pb: 3 } }}
+                              >
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    mb: 2,
+                                    fontWeight: 600,
+                                    background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+                                    backgroundClip: 'text',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    textTransform: 'capitalize',
+                                  }}
+                                >
+                                  {type}
+                                </Typography>
+
+                                {filteredPermissions[type].map((perm) => (
+                                  <FormControlLabel
+                                    key={perm.id}
+                                    control={
+                                      <Field
+                                        type="checkbox"
+                                        name="permissions"
+                                        value={perm.name}
+                                        as={Checkbox}
+                                        checked={values.permissions.includes(
+                                          perm.name,
+                                        )}
+                                        onChange={() => {
+                                          if (
+                                            values.permissions.includes(
+                                              perm.name,
+                                            )
+                                          ) {
+                                            setFieldValue(
+                                              'permissions',
+                                              values.permissions.filter(
+                                                (p) => p !== perm.name,
+                                              ),
+                                            );
+                                          } else {
+                                            setFieldValue('permissions', [
+                                              ...values.permissions,
+                                              perm.name,
+                                            ]);
+                                          }
+                                        }}
+                                        sx={{
+                                          color: 'primary.main',
+                                          '&.Mui-checked': {
+                                            color: 'primary.main',
+                                          },
+                                        }}
+                                      />
+                                    }
+                                    label={
+                                      <Typography
+                                        variant="body2"
+                                        sx={{
+                                          fontSize: '0.85rem',
+                                          fontWeight: 500,
+                                        }}
+                                      >
+                                        {perm.name}
+                                      </Typography>
+                                    }
+                                    sx={{
+                                      width: '100%',
+                                      m: 0,
+                                      mb: 1,
+                                      p: 1.5,
+                                      borderRadius: 2,
+                                      transition: 'all 0.2s ease',
+                                      '&:hover': {
+                                        backgroundColor: 'action.hover',
+                                        transform: 'translateX(4px)',
+                                      },
+                                      '&:last-child': {
+                                        mb: 0,
+                                      },
+                                    }}
+                                  />
+                                ))}
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))
+                      }
+                    />
+                  )}
+                </Grid>
+
+                {/* Error Message - Fixed at bottom */}
+                {errors.permissions && touched.permissions && (
+                  <Box
+                    sx={{
+                      mt: 3,
+                      p: 2,
+                      backgroundColor: 'error.light',
+                      color: 'error.dark',
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: 'error.main',
+                      textAlign: 'center',
+                      fontWeight: 500,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {errors.permissions}
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Actions - Fixed at bottom */}
+                <Grid container sx={{ mt: 4, flexShrink: 0 }}>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 2,
+                    }}
+                  >
+                    <Button
+                      onClick={() => {
+                        resetForm();
+                        handleClose();
+                      }}
+                      variant="outlined"
+                      sx={{
+                        px: 4,
+                        py: 1,
+                        borderRadius: 2,
+                        borderColor: 'divider',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                        },
+                      }}
+                    >
+                      Cancel
+                    </Button>
+
+                    <DrogaButton
+                      title={
+                        submitting ? (
+                          <ActivityIndicator
+                            size={18}
+                            sx={{ color: 'white' }}
+                          />
+                        ) : (
+                          'Create Role'
+                        )
+                      }
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        px: 4,
+                        py: 1,
+                        borderRadius: 2,
+                        background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+                        '&:hover': {
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+                        },
+                      }}
+                      disabled={submitting}
+                    />
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        </Box>
       </Box>
     </Modal>
   );

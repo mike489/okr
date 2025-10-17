@@ -275,10 +275,12 @@ const RoleTable = ({ searchQuery }) => {
       sx={{
         minHeight: '40dvh',
         width: '100%',
-        border: 0.4,
-        borderColor: theme.palette.divider,
-        borderRadius: 2,
-        p: 2,
+        border: 0,
+        borderRadius: 3,
+        p: 3,
+        background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        backdropFilter: 'blur(10px)',
       }}
     >
       {roleLoading ? (
@@ -290,7 +292,7 @@ const RoleTable = ({ searchQuery }) => {
             minHeight: '40dvh',
           }}
         >
-          <ActivityIndicator size={20} />
+          <ActivityIndicator size={24} />
         </Box>
       ) : error ? (
         <Fallbacks
@@ -306,30 +308,64 @@ const RoleTable = ({ searchQuery }) => {
         />
       ) : (
         filteredRoles.map((role, index) => (
-          <Box key={role.uuid} onClick={() => handleOpenRole(index)}>
+          <Box
+            key={role.uuid}
+            onClick={() => handleOpenRole(index)}
+            sx={{
+              mb: 2,
+              borderRadius: 3,
+              overflow: 'hidden',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              border: `1px solid ${theme.palette.divider}`,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+                borderColor: theme.palette.primary.light,
+              },
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor:
-                  selectedIndex === index && theme.palette.primary.main,
-                p: 1.4,
-                borderRadius: 2,
+                background:
+                  selectedIndex === index
+                    ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+                    : `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+                p: 3,
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
               }}
             >
-              <Typography
-                variant="h4"
-                sx={{
-                  color:
-                    selectedIndex === index
-                      ? 'white'
-                      : theme.palette.text.primary,
-                }}
-              >
-                {role.name}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor:
+                      selectedIndex === index
+                        ? 'white'
+                        : theme.palette.primary.main,
+                    transition: 'all 0.3s ease',
+                  }}
+                />
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color:
+                      selectedIndex === index
+                        ? 'white'
+                        : theme.palette.text.primary,
+                    fontWeight: 600,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {role.name}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <DotMenu
                   orientation="horizontal"
                   onEdit={() => handleOpenEditModal(role)}
@@ -338,123 +374,169 @@ const RoleTable = ({ searchQuery }) => {
                     color:
                       selectedIndex === index
                         ? 'white'
-                        : theme.palette.text.primary,
+                        : theme.palette.text.secondary,
+                    '&:hover': {
+                      color:
+                        selectedIndex === index
+                          ? 'white'
+                          : theme.palette.primary.main,
+                    },
                   }}
                 />
 
                 <IconButton
-                  onClick={() => handleOpenRole(index)}
-                  sx={{ marginLeft: 2 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenRole(index);
+                  }}
+                  sx={{
+                    marginLeft: 1,
+                    color:
+                      selectedIndex === index
+                        ? 'white'
+                        : theme.palette.text.secondary,
+                    '&:hover': {
+                      backgroundColor:
+                        selectedIndex === index
+                          ? 'rgba(255,255,255,0.1)'
+                          : 'rgba(0,0,0,0.04)',
+                    },
+                  }}
                 >
                   {selectedIndex === index ? (
-                    <IconChevronDown
-                      size="1.2rem"
-                      stroke="1.4"
-                      style={{
-                        color:
-                          selectedIndex === index
-                            ? 'white'
-                            : theme.palette.text.primary,
-                      }}
-                    />
+                    <IconChevronDown size="1.4rem" stroke="2" />
                   ) : (
-                    <IconChevronRight
-                      size="1.2rem"
-                      stroke="1.4"
-                      style={{
-                        color:
-                          selectedIndex === index
-                            ? 'white'
-                            : theme.palette.text.primary,
-                      }}
-                    />
+                    <IconChevronRight size="1.4rem" stroke="2" />
                   )}
                 </IconButton>
               </Box>
             </Box>
             {selectedIndex === index && (
-              <Box sx={{ mb: 1, transition: 'all 0.6s ease' }}>
-                <Divider
-                  sx={{
-                    borderBottom: 0.4,
-                    borderColor: theme.palette.divider,
-                    my: 2,
-                  }}
-                />
-                {Object.entries(groupPermissionsByType(role.permissions)).map(
-                  ([type, perms], i) => (
-                    <Box key={i} sx={{ mb: 3 }}>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{
-                          textTransform: 'capitalize',
-                          mb: 2,
-                          color: theme.palette.primary.main,
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
-                      >
-                        Assigned Permissions
-                      </Typography>
-
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns:
-                            'repeat(auto-fill, minmax(200px, 1fr))',
-                          gap: 2,
-                        }}
-                      >
-                        {perms.map((perm, idx) => (
-                          <Paper
-                            key={idx}
-                            elevation={1}
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Box sx={{ p: 3, background: theme.palette.background.paper }}>
+                  <Divider
+                    sx={{
+                      borderBottom: 1,
+                      borderColor: theme.palette.divider,
+                      mb: 3,
+                      opacity: 0.6,
+                    }}
+                  />
+                  {Object.entries(groupPermissionsByType(role.permissions)).map(
+                    ([type, perms], i) => (
+                      <Box key={i} sx={{ mb: 4 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            textTransform: 'uppercase',
+                            mb: 3,
+                            color: theme.palette.primary.main,
+                            fontWeight: 600,
+                            fontSize: '0.875rem',
+                            letterSpacing: '0.1em',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                          }}
+                        >
+                          <Box
                             sx={{
-                              padding: 2,
-                              borderRadius: 2,
-                              backgroundColor: theme.palette.background.paper,
-                              transition:
-                                'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-                              '&:hover': {
-                                transform: 'scale(1.02)',
-                                boxShadow: theme.shadows[8],
-                              },
+                              width: 4,
+                              height: 4,
+                              borderRadius: '50%',
+                              backgroundColor: theme.palette.primary.main,
                             }}
-                          >
-                            <Typography
-                              variant="body1"
-                              sx={{ fontWeight: 'bold', mb: 1 }}
-                            >
-                              {perm.name}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {perm.description || 'No description available'}
-                            </Typography>
-                            <Chip
-                              label="Assigned"
-                              size="small"
+                          />
+                          Assigned Permissions
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns:
+                              'repeat(auto-fill, minmax(280px, 1fr))',
+                            gap: 2,
+                          }}
+                        >
+                          {perms.map((perm, idx) => (
+                            <Card
+                              key={idx}
+                              elevation={0}
                               sx={{
-                                mt: 1,
-                                fontSize: '0.75rem',
-                                backgroundColor: theme.palette.primary.light,
-                                color: theme.palette.success.dark,
+                                padding: 2.5,
+                                borderRadius: 2,
+                                background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+                                border: `1px solid ${theme.palette.divider}`,
+                                transition:
+                                  'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                '&:hover': {
+                                  transform: 'translateY(-4px)',
+                                  boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+                                  borderColor: theme.palette.primary.light,
+                                },
+                                '&::before': {
+                                  content: '""',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  height: 3,
+                                  background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`,
+                                },
                               }}
-                            />
-                          </Paper>
-                        ))}
+                            >
+                              <Typography
+                                variant="subtitle1"
+                                sx={{
+                                  fontWeight: 600,
+                                  mb: 1.5,
+                                  color: theme.palette.text.primary,
+                                  fontSize: '0.95rem',
+                                }}
+                              >
+                                {perm.name}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                sx={{
+                                  mb: 2,
+                                  lineHeight: 1.5,
+                                  fontSize: '0.825rem',
+                                }}
+                              >
+                                {perm.description || 'No description available'}
+                              </Typography>
+                              <Chip
+                                label="Assigned"
+                                size="small"
+                                sx={{
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  height: 24,
+                                  background: `linear-gradient(135deg, ${theme.palette.success.light} 0%, ${theme.palette.success.main} 100%)`,
+                                  color: 'white',
+                                  '& .MuiChip-label': {
+                                    px: 1.5,
+                                  },
+                                }}
+                              />
+                            </Card>
+                          ))}
+                        </Box>
                       </Box>
-                    </Box>
-                  ),
-                )}
-              </Box>
+                    ),
+                  )}
+                </Box>
+              </motion.div>
             )}
-            <Divider
-              sx={{
-                borderBottom: 0.4,
-                borderColor: theme.palette.divider,
-                my: 0.8,
-              }}
-            />
           </Box>
         ))
       )}
@@ -465,31 +547,44 @@ const RoleTable = ({ searchQuery }) => {
         onClose={handleCloseEditModal}
         fullWidth={true}
         maxWidth="lg"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+            boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+            overflow: 'hidden',
+          },
+        }}
       >
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            m: 3,
-            mb: 1,
+            p: 3,
+            pb: 2,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            color: 'white',
           }}
         >
-          <Typography variant="h3">Edit Role</Typography>
+          <Typography variant="h3" sx={{ fontWeight: 600, color: 'white' }}>
+            Edit Role
+          </Typography>
 
           <motion.div
             whileHover={{
               rotate: 90,
+              scale: 1.1,
             }}
-            transition={{ duration: 0.3 }}
-            style={{ cursor: 'pointer', marginRight: 10 }}
+            transition={{ duration: 0.2 }}
+            style={{ cursor: 'pointer' }}
             onClick={handleCloseEditModal}
           >
-            <IconX size="1.4rem" stroke={2} />
+            <IconX size="1.6rem" stroke={2.5} color="white" />
           </motion.div>
         </Box>
 
-        <DialogContent>
+        <DialogContent sx={{ p: 4 }}>
           <Box>
             <TextField
               label="Role Name"
@@ -497,24 +592,33 @@ const RoleTable = ({ searchQuery }) => {
               value={editedRole.name}
               onChange={handleEditChange}
               fullWidth
-              margin="dense"
+              margin="normal"
+              variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  '&:hover fieldset': {
+                    borderColor: theme.palette.primary.main,
+                  },
+                },
+              }}
             />
 
-            <Divider sx={{ mb: 2 }} />
-            <Grid container spacing={2}>
+            <Divider sx={{ my: 3, opacity: 0.6 }} />
+            <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Typography variant="h4" mb={1}>
+                <Typography variant="h4" mb={2} sx={{ fontWeight: 600 }}>
                   Permissions
                 </Typography>
               </Grid>
 
-              <Grid item xs={12} mb={1}>
+              <Grid item xs={12} mb={2}>
                 <Search
                   title="Search Permissions"
                   filter={false}
                   value={search}
                   onChange={handleSearchingPermission}
-                ></Search>
+                />
               </Grid>
               {permLoading ? (
                 <Grid container>
@@ -525,55 +629,86 @@ const RoleTable = ({ searchQuery }) => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      py: 4,
                     }}
                   >
-                    <ActivityIndicator size={20} />
+                    <ActivityIndicator size={24} />
                   </Grid>
                 </Grid>
               ) : (Object.keys(allPermissions).length === 0) === 0 ? (
-                <Typography>No permissions available</Typography>
+                <Typography
+                  sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}
+                >
+                  No permissions available
+                </Typography>
               ) : (
                 Object.keys(filteredPermissions).map((type, index) => (
                   <Grid item xs={12} sm={6} md={4} xl={3} key={index}>
                     <DrogaCard
                       sx={{
-                        transition: 'transform 0.2s',
+                        borderRadius: 3,
+                        border: `1px solid ${theme.palette.divider}`,
+                        background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        overflow: 'hidden',
                         '&:hover': {
-                          transform: 'scale(1.01)',
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
                         },
                       }}
                     >
-                      {filteredPermissions[type].map((permission) => (
-                        <Box
-                          key={permission.id}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 1,
-                            borderRadius: '2px',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                              backgroundColor: '#f0f0f0',
-                            },
-                          }}
-                        >
-                          <Checkbox
-                            checked={selectedPermissions.includes(
-                              permission.id,
-                            )}
-                            onChange={() => permission.id}
-                          />
-
-                          <Typography
-                            sx={{ ml: 1, cursor: 'pointer' }}
-                            onClick={() =>
-                              handlePermissionChange(permission.id)
-                            }
+                      <Box sx={{ p: 2.5 }}>
+                        {filteredPermissions[type].map((permission) => (
+                          <Box
+                            key={permission.id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              p: 1.5,
+                              borderRadius: 2,
+                              transition: 'all 0.2s ease',
+                              mb: 1,
+                              '&:hover': {
+                                backgroundColor: theme.palette.action.hover,
+                                transform: 'translateX(4px)',
+                              },
+                              '&:last-child': {
+                                mb: 0,
+                              },
+                            }}
                           >
-                            {permission.name}
-                          </Typography>
-                        </Box>
-                      ))}
+                            <Checkbox
+                              checked={selectedPermissions.includes(
+                                permission.id,
+                              )}
+                              onChange={() =>
+                                handlePermissionChange(permission.id)
+                              }
+                              sx={{
+                                color: theme.palette.primary.main,
+                                '&.Mui-checked': {
+                                  color: theme.palette.primary.main,
+                                },
+                              }}
+                            />
+
+                            <Typography
+                              sx={{
+                                ml: 2,
+                                cursor: 'pointer',
+                                fontWeight: 500,
+                                fontSize: '0.9rem',
+                                flex: 1,
+                              }}
+                              onClick={() =>
+                                handlePermissionChange(permission.id)
+                              }
+                            >
+                              {permission.name}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
                     </DrogaCard>
                   </Grid>
                 ))
@@ -581,44 +716,120 @@ const RoleTable = ({ searchQuery }) => {
             </Grid>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseEditModal}>Cancel</Button>
+        <DialogActions sx={{ p: 3, pt: 2, gap: 2 }}>
+          <Button
+            onClick={handleCloseEditModal}
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1,
+              borderColor: theme.palette.divider,
+              '&:hover': {
+                borderColor: theme.palette.primary.main,
+                backgroundColor: 'rgba(25, 118, 210, 0.04)',
+              },
+            }}
+          >
+            Cancel
+          </Button>
           <DrogaButton
             title={
               submitting ? (
-                <ActivityIndicator size={16} sx={{ color: 'white' }} />
+                <ActivityIndicator size={18} sx={{ color: 'white' }} />
               ) : (
                 'Save Changes'
               )
             }
             onPress={handleSaveEdit}
             color="primary"
+            sx={{
+              borderRadius: 2,
+              px: 4,
+              py: 1,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+              '&:hover': {
+                transform: 'translateY(-1px)',
+                boxShadow: `0 6px 20px ${theme.palette.primary.main}40`,
+              },
+            }}
           />
         </DialogActions>
       </Dialog>
 
       {/* View Details Modal */}
-      <Dialog open={openDetailModal} onClose={handleCloseDetailModal}>
-        <DialogTitle>Role Details</DialogTitle>
-        <DialogContent>
-          <Typography variant="h6">Role Name:</Typography>
-          <Typography>{selectedRole?.name}</Typography>
-          <Typography variant="h6" sx={{ mt: 2 }}>
+      <Dialog
+        open={openDetailModal}
+        onClose={handleCloseDetailModal}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            color: 'white',
+            fontWeight: 600,
+          }}
+        >
+          Role Details
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+            Role Name:
+          </Typography>
+          <Typography
+            sx={{
+              mb: 3,
+              p: 2,
+              backgroundColor: theme.palette.action.hover,
+              borderRadius: 2,
+            }}
+          >
+            {selectedRole?.name}
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
             Permissions:
           </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+          <Divider sx={{ mb: 3 }} />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {selectedRole?.permissions.length === 0 ? (
-              <Typography>No permissions assigned</Typography>
+              <Typography sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+                No permissions assigned
+              </Typography>
             ) : (
               selectedRole?.permissions.map((perm) => (
-                <Chip key={perm.uuid} label={perm.name} sx={{ mr: 1, mb: 1 }} />
+                <Chip
+                  key={perm.uuid}
+                  label={perm.name}
+                  sx={{
+                    background: `linear-gradient(135deg, ${theme.palette.success.light} 0%, ${theme.palette.success.main} 100%)`,
+                    color: 'white',
+                    fontWeight: 500,
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    },
+                  }}
+                />
               ))
             )}
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDetailModal}>Close</Button>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button
+            onClick={handleCloseDetailModal}
+            variant="contained"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+            }}
+          >
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
